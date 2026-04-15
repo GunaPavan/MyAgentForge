@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyAgentForge — AI Agent Swarm</title>
+    <link rel="stylesheet" href="/static/styles.css?v=2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">&#9881;</span>
+            <h1>MyAgent<span class="accent">Forge</span></h1>
+        </div>
+        <div class="header-right">
+            <button class="model-badge" id="modelBadge" title="Click to see provider options">
+                <span class="model-icon">&#129302;</span>
+                <span id="modelLabel">Loading...</span>
+                <span class="gear-icon">&#9881;</span>
+            </button>
+            <div class="status-bar">
+                <span class="status-dot" id="connectionDot"></span>
+                <span id="connectionStatus">Disconnected</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Provider Settings</h2>
+                <button class="modal-close" id="modalCloseBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="current-config">
+                    <span class="config-label">Currently active:</span>
+                    <strong id="currentModelLabel">Loading...</strong>
+                </div>
+                <p class="modal-description">
+                    To switch providers, edit the <code>.env</code> file in your project root
+                    and restart the server. API keys stay on your machine &mdash; never stored in the browser.
+                </p>
+                <div class="providers-grid" id="providersGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="task-bar">
+        <input type="text" id="taskInput" placeholder="Describe a software engineering task... (e.g., Create a Python REST API for a todo app)"
+               autocomplete="off">
+        <button id="runBtn" onclick="submitTask()">
+            <span class="btn-icon">&#9654;</span> Run Swarm
+        </button>
+        <button id="stopBtn" onclick="stopTask()" style="display: none;" class="stop-btn">
+            <span class="btn-icon">&#9632;</span> Stop
+        </button>
+    </div>
+
+    <div class="templates-bar">
+        <span class="templates-label">Quick start:</span>
+        <button class="template-btn" data-task="Create an HTML + CSS + JS tic-tac-toe game with animations and a scoreboard">&#127922; Tic-tac-toe</button>
+        <button class="template-btn" data-task="Create a single-page landing page in HTML, CSS, and JS for a fictional SaaS product with hero section, features, and pricing">&#127760; Landing page</button>
+        <button class="template-btn" data-task="Create a Python REST API using FastAPI for a todo app with endpoints for create, read, update, delete">&#128640; REST API</button>
+        <button class="template-btn" data-task="Create a Python CLI tool that takes a URL and downloads all images from that webpage">&#128187; CLI tool</button>
+        <button class="template-btn" data-task="Create an HTML + CSS + JS snake game with arrow key controls and score tracking">&#128013; Snake game</button>
+    </div>
+
+    <div class="progress-bar" id="progressBar">
+        <div class="progress-fill" id="progressFill"></div>
+        <span class="progress-label" id="progressLabel"></span>
+    </div>
+
+    <div class="main-grid">
+        <!-- Left: Agent Cards -->
+        <aside class="agents-panel">
+            <h2>Agents</h2>
+            <div class="agent-card" id="agent-orchestrator">
+                <div class="agent-avatar" style="--agent-color: #6c63ff">&#129302;</div>
+                <div class="agent-info">
+                    <h3>Orchestrator</h3>
+                    <span class="agent-status">Idle</span>
+                </div>
+            </div>
+            <div class="agent-card" id="agent-planner">
+                <div class="agent-avatar" style="--agent-color: #4ecdc4">&#128209;</div>
+                <div class="agent-info">
+                    <h3>Planner</h3>
+                    <span class="agent-status">Idle</span>
+                </div>
+            </div>
+            <div class="agent-card" id="agent-coder">
+                <div class="agent-avatar" style="--agent-color: #ff6b9d">&#128187;</div>
+                <div class="agent-info">
+                    <h3>Coder</h3>
+                    <span class="agent-status">Idle</span>
+                </div>
+            </div>
+            <div class="agent-card" id="agent-reviewer">
+                <div class="agent-avatar" style="--agent-color: #ffd93d">&#128270;</div>
+                <div class="agent-info">
+                    <h3>Reviewer</h3>
+                    <span class="agent-status">Idle</span>
+                </div>
+            </div>
+            <div class="agent-card" id="agent-tester">
+                <div class="agent-avatar" style="--agent-color: #6bff6b">&#9989;</div>
+                <div class="agent-info">
+                    <h3>Tester</h3>
+                    <span class="agent-status">Idle</span>
+                </div>
+            </div>
+            <div class="agent-card" id="agent-debugger">
+                <div class="agent-avatar" style="--agent-color: #ff4444">&#128027;</div>
+                <div class="agent-info">
+                    <h3>Debugger</h3>
+                    <span class="agent-status">Idle</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center: Message Stream -->
+        <main class="messages-panel">
+            <h2>Agent Communication</h2>
+            <div class="messages-stream" id="messagesStream">
+                <div class="empty-state">
+                    <span>&#129302;</span>
+                    <p>Submit a task to watch the agents collaborate</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right: Code Output + Preview -->
+        <aside class="code-panel">
+            <div class="panel-tabs">
+                <button class="panel-tab active" data-tab="code" onclick="switchTab('code')">
+                    <span>&#128196;</span> Code
+                </button>
+                <button class="panel-tab" data-tab="preview" onclick="switchTab('preview')">
+                    <span>&#128065;</span> Preview
+                </button>
+                <button id="downloadBtn" class="download-btn" onclick="downloadZip()" style="display:none;">
+                    <span>&#11015;</span> ZIP
+                </button>
+            </div>
+            <div class="code-output tab-content active" id="codeOutput" data-tab="code">
+                <div class="empty-state">
+                    <span>&#128196;</span>
+                    <p>Code will appear here</p>
+                </div>
+            </div>
+            <div class="preview-output tab-content" id="previewOutput" data-tab="preview">
+                <div class="empty-state">
+                    <span>&#128065;</span>
+                    <p>HTML preview will appear here once generated</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="/static/app.js?v=2"></script>
+</body>
+</html>
