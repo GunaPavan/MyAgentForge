@@ -1,8 +1,15 @@
+"""Swarm orchestration engine.
+
+Stateless. Does not persist anything server-side. Frontend owns all storage.
+"""
 from __future__ import annotations
+
 import asyncio
 import os
 import re
+import uuid
 from typing import AsyncGenerator, Optional
+
 from core.models import (
     AgentRole, AgentStatus, TaskState, TaskStatus, SwarmEvent,
 )
@@ -11,23 +18,6 @@ from agents import (
     OrchestratorAgent, PlannerAgent, CoderAgent,
     ReviewerAgent, TesterAgent, DebuggerAgent,
 )
-
-
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "output")
-
-
-def save_files_to_disk(files: dict[str, str], task_id: str) -> str:
-    safe_task_id = re.sub(r"[^a-zA-Z0-9_-]", "_", task_id)[:40]
-    out_path = os.path.join(OUTPUT_DIR, safe_task_id)
-    os.makedirs(out_path, exist_ok=True)
-    for fname, content in files.items():
-        safe_name = os.path.basename(fname)
-        if not safe_name:
-            continue
-        full_path = os.path.join(out_path, safe_name)
-        with open(full_path, "w", encoding="utf-8") as f:
-            f.write(content)
-    return out_path
 
 
 class SwarmCancelled(Exception):
@@ -78,17 +68,13 @@ class Swarm:
         return callback
 
     async def _run_agent(self, role: AgentRole, receiver: str, state: TaskState) -> TaskState:
-        """Run an agent with streaming, pushing events to queue."""
-        import uuid
         msg_id = uuid.uuid4().hex[:8]
-        # Start stream marker
         await self._event_queue.put(SwarmEvent(
             type="stream_start",
             data={"sender": role.value, "receiver": receiver, "msg_id": msg_id},
         ))
         callback = await self._make_stream_callback(role.value, receiver, msg_id)
         state = await self.agents[role].execute(state, on_chunk=callback)
-        # End stream marker
         await self._event_queue.put(SwarmEvent(
             type="stream_end",
             data={"sender": role.value, "receiver": receiver, "msg_id": msg_id},
@@ -98,7 +84,6 @@ class Swarm:
     async def run(self, user_task: str) -> AsyncGenerator[SwarmEvent, None]:
         state = TaskState(user_task=user_task)
 
-        # Runner task processes the full swarm in background, pushing events to queue
         async def runner():
             try:
                 nonlocal state
@@ -125,7 +110,6 @@ class Swarm:
                     state = await self._run_agent(AgentRole.PLANNER, "coder", state)
                     await self._event_queue.put(self._status_event(AgentRole.PLANNER, AgentStatus.DONE))
 
-                # Code-Review loop
                 for iteration in range(MAX_REVIEW_ITERATIONS + 1):
                     self._check_cancelled()
                     await self._event_queue.put(self._status_event(AgentRole.CODER, AgentStatus.WORKING))
@@ -151,17 +135,8 @@ class Swarm:
                     state = await self._run_agent(AgentRole.TESTER, "user", state)
                     await self._event_queue.put(self._status_event(AgentRole.TESTER, AgentStatus.DONE))
 
-                saved_path = ""
-                if state.code:
-                    try:
-                        saved_path = save_files_to_disk(state.code, state.task_id)
-                    except Exception as e:
-                        await self._event_queue.put(self._message_event("system", "user", f"Warning: could not save files: {e}"))
-
                 await self._event_queue.put(self._task_event(TaskStatus.COMPLETED))
                 msg = f"Task completed! Generated {len(state.code)} file(s): {', '.join(state.code.keys())}"
-                if saved_path:
-                    msg += f"\nFiles saved to: {saved_path}"
                 await self._event_queue.put(self._message_event("system", "user", msg))
 
             except SwarmCancelled:
@@ -171,7 +146,7 @@ class Swarm:
                 await self._event_queue.put(self._message_event("system", "user", f"Error: {e}"))
                 await self._event_queue.put(self._task_event(TaskStatus.FAILED))
             finally:
-                await self._event_queue.put(None)  # Sentinel
+                await self._event_queue.put(None)
 
         runner_task = asyncio.create_task(runner())
 

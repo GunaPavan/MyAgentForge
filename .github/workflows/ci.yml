@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run pytest suite
+        run: pytest -v
+
+  security:
+    name: Security scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit
+
+      - name: Audit for known vulnerabilities
+        run: pip-audit -r requirements.txt --strict
+
+      - name: Secret scan
+        run: |
+          # Fail the build if any API-key-like pattern appears in tracked files
+          set +e
+          matches=$(grep -rEn "(csk-[A-Za-z0-9]{20}|gsk_[A-Za-z0-9]{20}|sk-proj-[A-Za-z0-9]{20}|sk-[A-Za-z0-9]{30})" \
+              --include="*.py" --include="*.js" --include="*.html" --include="*.css" \
+              --include="*.md" --include="*.yml" --include="*.json" \
+              --include="Dockerfile" --include=".env.example" . || true)
+          if [ -n "$matches" ]; then
+            echo "SECRETS DETECTED:"
+            echo "$matches"
+            exit 1
+          fi
+          echo "No secrets found."
+
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: myagentforge:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -7,14 +7,30 @@
     <link rel="stylesheet" href="/static/styles.css?v=2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+          integrity="sha384-wFjoQjtV1y5jVHbt0p35Ui8aV8GVpEZkyF99OXWqP/eNJDU93D3Ugxkoyh6Y2I4A"
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"
+            integrity="sha384-06z5D//U/xpvxZHuUz92xBvq3DqBBFi7Up53HRrbV7Jlv7Yvh/MZ7oenfUe9iCEt"
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"
+            integrity="sha384-WJdEkJKrbsqw0evQ4GB6mlsKe5cGTxBOw4KAEIa52ZLB7DDpliGkwdme/HMa5n1m"
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"
+            integrity="sha384-D44bgYYKvaiDh4cOGlj1dbSDpSctn2FSUj118HZGmZEShZcO2v//Q5vvhNy206pp"
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"
+            integrity="sha384-HkMr0bZB9kBW4iVtXn6nd35kO/L/dQtkkUBkL9swzTEDMdIe5ExJChVDSnC79aNA"
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"
+            integrity="sha384-0mV13Neu0xhJFylI+HV43C+XiR13bGSeL7D0/7e6hK7sJgvyvK6HVjeQwmvXTstY"
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"
+            integrity="sha384-RhrmFFMb0ZCHImjFMpR/UE3VEtIVTCtNrtKQqXCzqXZNJala02N3UbVhi+qzw3CY"
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"
+            integrity="sha384-9WmlN8ABpoFSSHvBGGjhvB3E/D8UkNB9HpLJjBQFC2VSQsM1odiQDv4NbEo+7l15"
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
     <header class="header">
@@ -23,6 +39,15 @@
             <h1>MyAgent<span class="accent">Forge</span></h1>
         </div>
         <div class="header-right">
+            <button class="header-btn" id="historyBtn" title="View past projects">
+                <span>&#128214;</span>
+                <span>History</span>
+            </button>
+            <button class="header-btn" id="newProjectBtn" title="Start a new project">
+                <span>&#43;</span>
+                <span>New</span>
+            </button>
+            <span class="mode-badge" id="modeBadge" title="Loading mode...">MODE</span>
             <button class="model-badge" id="modelBadge" title="Click to see provider options">
                 <span class="model-icon">&#129302;</span>
                 <span id="modelLabel">Loading...</span>
@@ -35,34 +60,103 @@
         </div>
     </header>
 
+    <!-- History Drawer -->
+    <aside class="history-drawer" id="historyDrawer">
+        <div class="history-header">
+            <h2>Project History</h2>
+            <button class="drawer-close" id="historyCloseBtn">&times;</button>
+        </div>
+        <div class="history-toolbar">
+            <span class="history-count" id="historyCount">0 projects</span>
+            <button class="history-clear-all" id="historyClearAllBtn" title="Delete all projects">
+                &#128465; Clear all
+            </button>
+        </div>
+        <div class="history-list" id="historyList">
+            <div class="empty-state small">
+                <p>No projects yet</p>
+            </div>
+        </div>
+        <div class="history-footer">
+            <div class="storage-meter" id="storageMeter">
+                <div class="storage-bar">
+                    <div class="storage-fill" id="storageFill"></div>
+                </div>
+                <div class="storage-label" id="storageLabel">Calculating...</div>
+            </div>
+            <p>All data lives only in this browser. Nothing is sent to our server.</p>
+        </div>
+    </aside>
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+
     <!-- Settings Modal -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal">
             <div class="modal-header">
-                <h2>Provider Settings</h2>
+                <h2>API Key &amp; Provider</h2>
                 <button class="modal-close" id="modalCloseBtn">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="current-config">
-                    <span class="config-label">Currently active:</span>
-                    <strong id="currentModelLabel">Loading...</strong>
+                <!-- Section 1: user's key config -->
+                <div class="key-section">
+                    <h3 class="section-title">Your LLM Configuration</h3>
+                    <p class="section-note">
+                        &#128274; Stored only in your browser's localStorage. Never sent to our database, never logged.
+                    </p>
+                    <div class="key-form">
+                        <label>
+                            <span>API Key</span>
+                            <div class="key-input-row">
+                                <input type="password" id="keyApiKey" placeholder="sk-... or csk-... or gsk_..." autocomplete="off">
+                                <button type="button" id="keyToggleBtn" class="key-toggle" title="Show/hide">&#128065;</button>
+                            </div>
+                        </label>
+                        <label>
+                            <span>Base URL</span>
+                            <input type="text" id="keyBaseUrl" placeholder="https://api.cerebras.ai/v1">
+                        </label>
+                        <label>
+                            <span>Model</span>
+                            <input type="text" id="keyModel" placeholder="e.g. qwen-3-235b-a22b-instruct-2507">
+                        </label>
+                        <div class="key-actions">
+                            <button id="keySaveBtn" class="btn-primary-sm">Save</button>
+                            <button id="keyClearBtn" class="btn-secondary-sm">Clear</button>
+                            <span id="keyStatus" class="key-status"></span>
+                        </div>
+                        <label class="toggle-row">
+                            <input type="checkbox" id="sessionOnlyToggle">
+                            <span class="toggle-label">
+                                <strong>Clear on tab close</strong>
+                                <small>Store key in sessionStorage instead of localStorage. Safer on shared devices &mdash; key is wiped when you close the tab.</small>
+                            </span>
+                        </label>
+                    </div>
                 </div>
-                <p class="modal-description">
-                    To switch providers, edit the <code>.env</code> file in your project root
-                    and restart the server. API keys stay on your machine &mdash; never stored in the browser.
-                </p>
-                <div class="providers-grid" id="providersGrid"></div>
+
+                <!-- Section 2: provider reference -->
+                <div class="providers-section">
+                    <h3 class="section-title">Pick a Provider</h3>
+                    <p class="section-note">Click a provider to auto-fill the Base URL above, then add your key and choose a model.</p>
+                    <div class="providers-grid" id="providersGrid"></div>
+                </div>
             </div>
         </div>
+    </div>
+
+    <div class="project-indicator" id="projectIndicator" style="display:none;">
+        <span class="indicator-label">Project:</span>
+        <span class="indicator-title" id="indicatorTitle"></span>
+        <button class="indicator-close" id="indicatorCloseBtn" title="Start fresh">&times;</button>
     </div>
 
     <div class="task-bar">
         <input type="text" id="taskInput" placeholder="Describe a software engineering task... (e.g., Create a Python REST API for a todo app)"
                autocomplete="off">
-        <button id="runBtn" onclick="submitTask()">
+        <button id="runBtn">
             <span class="btn-icon">&#9654;</span> Run Swarm
         </button>
-        <button id="stopBtn" onclick="stopTask()" style="display: none;" class="stop-btn">
+        <button id="stopBtn" style="display: none;" class="stop-btn">
             <span class="btn-icon">&#9632;</span> Stop
         </button>
     </div>
@@ -143,13 +237,13 @@
         <!-- Right: Code Output + Preview -->
         <aside class="code-panel">
             <div class="panel-tabs">
-                <button class="panel-tab active" data-tab="code" onclick="switchTab('code')">
+                <button class="panel-tab active" data-tab="code">
                     <span>&#128196;</span> Code
                 </button>
-                <button class="panel-tab" data-tab="preview" onclick="switchTab('preview')">
+                <button class="panel-tab" data-tab="preview">
                     <span>&#128065;</span> Preview
                 </button>
-                <button id="downloadBtn" class="download-btn" onclick="downloadZip()" style="display:none;">
+                <button id="downloadBtn" class="download-btn" style="display:none;">
                     <span>&#11015;</span> ZIP
                 </button>
             </div>
@@ -168,6 +262,6 @@
         </aside>
     </div>
 
-    <script src="/static/app.js?v=2"></script>
+    <script type="module" src="/static/app.js?v=3"></script>
 </body>
 </html>

@@ -1,14 +1,15 @@
 # MyAgentForge
 
-An AI multi-agent system where specialized agents collaborate to solve software engineering tasks in real-time — with a live dashboard showing agents streaming their thoughts as they work.
+An AI multi-agent system where specialized agents collaborate to solve software engineering tasks in real-time — with a live streaming dashboard, **zero server-side storage**, and support for any OpenAI-compatible LLM provider.
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![Python](https://img.shields.io/badge/Python-3.11+-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ## Overview
 
-MyAgentForge orchestrates 6 specialized AI agents that work together like a software engineering team. Submit a task, watch the agents communicate live, see the generated code with syntax highlighting, and preview HTML apps instantly — all in one dashboard.
+MyAgentForge orchestrates 6 specialized AI agents that work together like a software engineering team. Submit a task, watch the agents communicate live, see the generated code with syntax highlighting, and preview web apps instantly — all in one dashboard.
 
 ```
 User Task -> Orchestrator -> Planner -> Coder -> Reviewer -> Tester -> Done
@@ -23,133 +24,144 @@ User Task -> Orchestrator -> Planner -> Coder -> Reviewer -> Tester -> Done
 | **Planner** | Designs implementation plans with file structures |
 | **Coder** | Writes production-quality code |
 | **Reviewer** | Reviews for bugs, security, best practices |
-| **Tester** | Generates test cases and validates logic |
+| **Tester** | Generates test cases |
 | **Debugger** | Traces errors and proposes fixes |
+
+## Privacy & Security
+
+**Your API keys never touch our server.** MyAgentForge is built privacy-first:
+
+- API keys live only in your browser's localStorage (optionally sessionStorage for "clear on close")
+- Keys are passed per-request to the server, used once, and never persisted or logged
+- All project history is stored in your browser's IndexedDB — no database, no user accounts, no login
+- Strict Content Security Policy, Subresource Integrity on all CDN assets, rate limiting, key redaction in error messages
+- iframe-sandboxed preview (can't escape to parent page)
+
+The server is fully stateless — nothing to steal, nothing to leak.
 
 ## Features
 
-- **Real-time Streaming** — Watch agents generate output token-by-token (like ChatGPT)
-- **Live Web Dashboard** — WebSocket-powered UI with agent avatars, status indicators, and message stream
-- **Live HTML Preview** — For web projects, see the running app in a sandboxed iframe
-- **Syntax Highlighting** — Color-coded code with Prism.js for Python, JS, HTML, CSS, JSON, Bash
-- **Task Templates** — One-click quick-starts: Tic-tac-toe, Landing page, REST API, CLI tool, Snake game
-- **ZIP Download** — One-click download of all generated files
-- **Stop / Cancel** — Kill a running task mid-way to save API calls
-- **Auto-save to Disk** — Files saved to `output/<task-id>/` after every task
-- **Universal LLM Support** — Works with any OpenAI-compatible API (Cerebras, Groq, OpenAI, Gemini, Mistral, OpenRouter, DeepSeek, Ollama, etc.)
-- **API Cost Optimization** — Configurable flags to skip agents, combine roles, limit review loops
+- **Real-time streaming** — Agent output appears token-by-token (like ChatGPT)
+- **Live HTML preview** — Instant preview of generated web apps in a sandboxed iframe
+- **Syntax highlighting** — Python, JS, HTML, CSS, JSON, Bash via Prism.js (with SRI)
+- **Task templates** — One-click quick-starts
+- **ZIP download** — Grab generated files per-project or for the current task
+- **Stop/cancel** — Kill a running task mid-way
+- **Storage meter** — See live localStorage + IndexedDB usage
+- **Session-only key mode** — Auto-clear your key when the tab closes
+- **Three run modes** — `mock` (zero cost), `dev` (minimal tokens), `prod` (full quality)
+- **Any OpenAI-compatible provider** — Cerebras, Groq, OpenAI, Gemini, Mistral, OpenRouter, DeepSeek, Ollama, etc.
 
 ## Quick Start
 
-### 1. Clone & Install
+### Option A: Local Python
 
 ```bash
-git clone https://github.com/GunaPavan/myagentforge.git
-cd myagentforge
+git clone https://github.com/GunaPavan/MyAgentForge.git
+cd MyAgentForge
 pip install -r requirements.txt
-```
-
-### 2. Configure
-
-```bash
-cp .env.example .env
-# Edit .env with your preferred LLM provider's API key
-```
-
-**Recommended: Cerebras (free, fast)**
-```env
-LLM_API_KEY=csk-...
-LLM_BASE_URL=https://api.cerebras.ai/v1
-MODEL_NAME=<pick-from-models-link>
-```
-
-Supported providers (all OpenAI-compatible APIs) — click "Browse Models" to pick the exact model you want:
-
-| Provider | Tier | Get Key | Browse Models |
-|----------|------|---------|---------------|
-| Cerebras | Free | [Keys](https://cloud.cerebras.ai/platform/api-keys) | [Models](https://inference-docs.cerebras.ai/introduction) |
-| Groq | Free | [Keys](https://console.groq.com/keys) | [Models](https://console.groq.com/docs/models) |
-| Google Gemini | Free | [Keys](https://aistudio.google.com/apikey) | [Models](https://ai.google.dev/gemini-api/docs/models/gemini) |
-| OpenRouter | Free tier | [Keys](https://openrouter.ai/keys) | [Models](https://openrouter.ai/models) |
-| Mistral | Free tier | [Keys](https://console.mistral.ai/api-keys/) | [Models](https://docs.mistral.ai/getting-started/models/models_overview/) |
-| Together AI | $25 credit | [Keys](https://api.together.xyz/settings/api-keys) | [Models](https://docs.together.ai/docs/serverless-models) |
-| SambaNova | Free tier | [Keys](https://cloud.sambanova.ai/apis) | [Models](https://docs.sambanova.ai/cloud/docs/get-started/supported-models) |
-| DeepSeek | Cheap | [Keys](https://platform.deepseek.com/api_keys) | [Models](https://api-docs.deepseek.com/quick_start/pricing) |
-| OpenAI | Paid | [Keys](https://platform.openai.com/api-keys) | [Models](https://platform.openai.com/docs/models) |
-| Ollama | Local | [Install](https://ollama.com/download) | [Library](https://ollama.com/library) |
-
-You can also access this provider list directly in the **web dashboard** — click the gear icon in the top-right to see all providers with one-click "Copy .env" buttons.
-
-### 3. Run
-
-```bash
 python main.py
 ```
 
-Open **http://localhost:8000**. Click a template button or type your own task and hit **Run Swarm**.
+Open **http://localhost:8000**. Click the robot badge in the top-right to paste your API key (stored only in your browser). Run a task.
 
-### CLI Mode
+### Option B: Docker
 
 ```bash
-python examples/demo.py "Create a Python REST API for a todo app"
+docker build -t myagentforge .
+docker run -p 8000:8000 myagentforge
 ```
+
+### Option C: Mock mode (no LLM provider needed)
+
+Set `MODE=mock` in your environment — everything works with canned responses. Perfect for UI exploration without any API cost.
+
+```bash
+MODE=mock python main.py
+```
+
+## Supported LLM Providers
+
+All OpenAI-compatible APIs work out of the box. Click the gear icon in the web UI to see all options and auto-fill the base URL:
+
+| Provider | Tier | Notes |
+|----------|------|-------|
+| [Cerebras](https://cloud.cerebras.ai/) | Free | Fastest inference |
+| [Groq](https://console.groq.com/) | Free | Daily token limit |
+| [Google Gemini](https://aistudio.google.com/apikey) | Free | 1500 req/day on 2.0 Flash |
+| [OpenRouter](https://openrouter.ai/) | Free tier | Many models, some marked :free |
+| [Mistral](https://console.mistral.ai/) | Free tier | |
+| [Together AI](https://api.together.xyz/) | $25 credit | |
+| [SambaNova](https://cloud.sambanova.ai/) | Free tier | |
+| [DeepSeek](https://platform.deepseek.com/) | Cheap | ~$0.14/1M tokens |
+| [OpenAI](https://platform.openai.com/) | Paid | |
+| [Ollama](https://ollama.com/) | Local | Run models on your own machine |
 
 ## Configuration
 
-All in `.env`:
+All via `.env` (all optional — mock mode works with no config):
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `LLM_API_KEY` | — | API key for your chosen provider |
-| `LLM_BASE_URL` | `https://api.openai.com/v1` | OpenAI-compatible endpoint |
-| `MODEL_NAME` | `gpt-4o-mini` | Model to use (browse the provider's model catalog to pick) |
-| `MAX_TOKENS` | `0` | Max output tokens per agent call (0 = model default) |
-| `LLM_TIMEOUT` | `60` | Per-request timeout in seconds |
-| `MAX_REVIEW_ITERATIONS` | `1` | Max code-review fix loops |
-| `SKIP_TESTER` | `false` | Skip Tester agent to save 1 API call/task |
-| `COMBINE_ORCHESTRATOR` | `true` | Merge Orchestrator+Planner into 1 call |
+| `MODE` | `prod` | `mock`, `dev`, or `prod` |
+| `PORT` | `8000` | HTTP port |
+| `MAX_REVIEW_ITERATIONS` | `1` | Code-review fix loops |
+| `SKIP_TESTER` | mode-based | Skip Tester agent |
+| `COMBINE_ORCHESTRATOR` | `true` | Merge Orchestrator+Planner |
+| `MAX_TOKENS` | mode-based | 0 = model default |
+| `LLM_TIMEOUT` | `60` | Per-request timeout (seconds) |
 
-### Minimizing API Costs
+Run modes set sensible defaults:
 
-Default = ~4 API calls per task. Set `SKIP_TESTER=true` to get down to **3 calls per task**.
+| Mode | Review iter | Skip Tester | Max tokens |
+|------|:-----------:|:-----------:|:----------:|
+| `mock` | 0 | yes | 256 |
+| `dev`  | 0 | yes | 1024 |
+| `prod` | 1 | no  | unlimited |
 
 ## Architecture
 
 ```
 myagentforge/
-├── main.py               # FastAPI server, WebSocket, ZIP endpoint
+├── main.py               # FastAPI + WebSocket + security middleware
+├── Dockerfile            # Multi-stage, non-root, healthcheck
+├── railway.json          # Railway deploy config
+├── docker-compose.yml    # Local Docker dev
 ├── agents/
 │   ├── base.py           # Base agent with streaming support
 │   ├── orchestrator.py   # Task decomposition
 │   ├── planner.py        # Implementation planning
-│   ├── coder.py          # Code generation (JSON-formatted output)
-│   ├── reviewer.py       # Code review with APPROVE/NEEDS_FIXES verdict
+│   ├── coder.py          # JSON-formatted code generation
+│   ├── reviewer.py       # Code review with APPROVED/NEEDS_FIXES
 │   ├── tester.py         # Test case generation
-│   └── debugger.py       # Error analysis (used on failures)
+│   └── debugger.py       # Error analysis
 ├── core/
-│   ├── swarm.py          # Orchestration engine with streaming events
+│   ├── swarm.py          # Orchestration engine (streaming events)
 │   ├── models.py         # Pydantic data models
-│   └── config.py         # LLM client setup (OpenAI-compatible)
-├── static/               # Dashboard UI (vanilla JS, Prism.js)
+│   └── config.py         # Per-request LLM config via contextvars
+├── static/               # Frontend (vanilla JS + Prism.js with SRI)
 │   ├── index.html
 │   ├── styles.css
-│   └── app.js
-├── examples/
-│   └── demo.py           # CLI demo script
-└── output/               # Generated files saved here (gitignored)
+│   ├── app.js            # WebSocket client + UI logic
+│   └── db.js             # IndexedDB project store
+└── examples/demo.py      # CLI demo script
 ```
 
-## How Streaming Works
+## Deployment
 
-Each agent call streams token-by-token via the OpenAI SDK's `stream=True`. The swarm pushes `stream_start`, `stream`, and `stream_end` events to the frontend via WebSocket. The dashboard renders them live with a blinking cursor — same UX as ChatGPT.
+See **[DEPLOY.md](DEPLOY.md)** for detailed guides. Short version:
+
+- **Railway** (recommended): push to GitHub, click Deploy from GitHub on Railway, done
+- **Fly.io**: `fly launch && fly deploy`
+- **Docker anywhere**: the image works on any Docker host
 
 ## Tech Stack
 
-- **Backend**: Python, FastAPI, WebSockets, OpenAI SDK, Pydantic
+- **Backend**: Python 3.11, FastAPI, WebSockets, OpenAI SDK, Pydantic, slowapi
 - **Frontend**: Vanilla HTML/CSS/JS, Prism.js (syntax highlighting)
-- **No build step**, no React, no heavyweight dependencies
+- **Storage**: Browser-side only — IndexedDB + localStorage
+- **No build step**, no React, no heavy dependencies
 
 ## License
 
 MIT
-

@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    image: myagentforge:local
+    container_name: myagentforge
+    ports:
+      - "8000:8000"
+    environment:
+      - MODE=${MODE:-mock}
+      - PORT=8000
+    restart: unless-stopped
