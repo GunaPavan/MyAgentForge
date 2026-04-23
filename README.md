@@ -1,3 +1,15 @@
+---
+title: MyAgentForge
+emoji: 🤖
+colorFrom: indigo
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: true
+license: mit
+short_description: AI agent swarm for software engineering tasks
+---
+
 # MyAgentForge
 
 An AI multi-agent system where specialized agents collaborate to solve software engineering tasks in real-time — with a live streaming dashboard, **zero server-side storage**, and support for any OpenAI-compatible LLM provider.
