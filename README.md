@@ -14,10 +14,16 @@ short_description: AI agent swarm for software engineering tasks
 
 An AI multi-agent system where specialized agents collaborate to solve software engineering tasks in real-time — with a live streaming dashboard, **zero server-side storage**, and support for any OpenAI-compatible LLM provider.
 
-![Python](https://img.shields.io/badge/Python-3.11+-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green)
-![Docker](https://img.shields.io/badge/Docker-ready-2496ED)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+### 🚀 [**Try the live demo →**](https://gunapavan-myagentforge.hf.space/)
+
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?style=for-the-badge&logo=huggingface&logoColor=white)](https://gunapavan-myagentforge.hf.space/)
+[![Python](https://img.shields.io/badge/Python-3.11+-blue)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.136-green)](https://fastapi.tiangolo.com/)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](./Dockerfile)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](./LICENSE)
+[![CI](https://github.com/GunaPavan/MyAgentForge/actions/workflows/ci.yml/badge.svg)](https://github.com/GunaPavan/MyAgentForge/actions/workflows/ci.yml)
+
+> **Bring your own API key.** Keys stay in your browser — never stored on our server. Deploy is stateless by design.
 
 ## Overview
 
