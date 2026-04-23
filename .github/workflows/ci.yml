@@ -53,12 +53,17 @@ jobs:
 
       - name: Secret scan
         run: |
-          # Fail the build if any API-key-like pattern appears in tracked files
+          # Fail the build if any API-key-like pattern appears in tracked files.
+          # Exclude tests/ — test fixtures legitimately contain key-shaped strings
+          # to verify the key redaction function works.
           set +e
           matches=$(grep -rEn "(csk-[A-Za-z0-9]{20}|gsk_[A-Za-z0-9]{20}|sk-proj-[A-Za-z0-9]{20}|sk-[A-Za-z0-9]{30})" \
               --include="*.py" --include="*.js" --include="*.html" --include="*.css" \
               --include="*.md" --include="*.yml" --include="*.json" \
-              --include="Dockerfile" --include=".env.example" . || true)
+              --include="Dockerfile" --include=".env.example" \
+              --exclude-dir="tests" --exclude-dir="__pycache__" \
+              --exclude-dir=".git" --exclude-dir=".venv" --exclude-dir="venv" \
+              . || true)
           if [ -n "$matches" ]; then
             echo "SECRETS DETECTED:"
             echo "$matches"
