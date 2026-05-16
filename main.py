@@ -78,7 +78,14 @@ app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__
 
 @app.get("/")
 async def root():
+    """Marketing landing page."""
     return FileResponse(os.path.join(os.path.dirname(__file__), "static", "index.html"))
+
+
+@app.get("/app")
+async def app_route():
+    """The dashboard / actual product UI."""
+    return FileResponse(os.path.join(os.path.dirname(__file__), "static", "app.html"))
 
 
 @app.get("/api/config")

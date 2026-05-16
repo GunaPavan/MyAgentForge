@@ -3,265 +3,335 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyAgentForge — AI Agent Swarm</title>
-    <link rel="stylesheet" href="/static/styles.css?v=2">
+    <title>MyAgentForge — AI agents that build software, privately</title>
+    <meta name="description" content="A swarm of 6 specialized AI agents collaborates to plan, code, review, and test software in real time. Bring your own LLM key — nothing stored on our servers.">
+    <meta name="theme-color" content="#0a0a0f">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="MyAgentForge — AI agents that build software, privately">
+    <meta property="og:description" content="A swarm of 6 specialized AI agents collaborates to plan, code, review, and test software in real time. Bring your own LLM key.">
+    <meta property="og:url" content="https://gunapavan-myagentforge.hf.space/">
+    <meta property="og:site_name" content="MyAgentForge">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MyAgentForge — AI agents that build software, privately">
+    <meta name="twitter:description" content="6 specialized AI agents collaborate to plan, code, review, and test software in real time.">
+
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/landing.css?v=1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
-          integrity="sha384-wFjoQjtV1y5jVHbt0p35Ui8aV8GVpEZkyF99OXWqP/eNJDU93D3Ugxkoyh6Y2I4A"
-          crossorigin="anonymous" referrerpolicy="no-referrer">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"
-            integrity="sha384-06z5D//U/xpvxZHuUz92xBvq3DqBBFi7Up53HRrbV7Jlv7Yvh/MZ7oenfUe9iCEt"
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"
-            integrity="sha384-WJdEkJKrbsqw0evQ4GB6mlsKe5cGTxBOw4KAEIa52ZLB7DDpliGkwdme/HMa5n1m"
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"
-            integrity="sha384-D44bgYYKvaiDh4cOGlj1dbSDpSctn2FSUj118HZGmZEShZcO2v//Q5vvhNy206pp"
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"
-            integrity="sha384-HkMr0bZB9kBW4iVtXn6nd35kO/L/dQtkkUBkL9swzTEDMdIe5ExJChVDSnC79aNA"
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"
-            integrity="sha384-0mV13Neu0xhJFylI+HV43C+XiR13bGSeL7D0/7e6hK7sJgvyvK6HVjeQwmvXTstY"
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"
-            integrity="sha384-RhrmFFMb0ZCHImjFMpR/UE3VEtIVTCtNrtKQqXCzqXZNJala02N3UbVhi+qzw3CY"
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"
-            integrity="sha384-9WmlN8ABpoFSSHvBGGjhvB3E/D8UkNB9HpLJjBQFC2VSQsM1odiQDv4NbEo+7l15"
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header class="header">
-        <div class="logo">
-            <span class="logo-icon">&#9881;</span>
-            <h1>MyAgent<span class="accent">Forge</span></h1>
-        </div>
-        <div class="header-right">
-            <button class="header-btn" id="historyBtn" title="View past projects">
-                <span>&#128214;</span>
-                <span>History</span>
-            </button>
-            <button class="header-btn" id="newProjectBtn" title="Start a new project">
-                <span>&#43;</span>
-                <span>New</span>
-            </button>
-            <span class="mode-badge" id="modeBadge" title="Loading mode...">MODE</span>
-            <button class="model-badge" id="modelBadge" title="Click to see provider options">
-                <span class="model-icon">&#129302;</span>
-                <span id="modelLabel">Loading...</span>
-                <span class="gear-icon">&#9881;</span>
-            </button>
-            <div class="status-bar">
-                <span class="status-dot" id="connectionDot"></span>
-                <span id="connectionStatus">Disconnected</span>
-            </div>
-        </div>
-    </header>
 
-    <!-- History Drawer -->
-    <aside class="history-drawer" id="historyDrawer">
-        <div class="history-header">
-            <h2>Project History</h2>
-            <button class="drawer-close" id="historyCloseBtn">&times;</button>
+<!-- ========== NAV ========== -->
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="/" class="nav-brand">
+            <span class="brand-mark">⚙</span>
+            <span class="brand-name">MyAgent<span class="brand-accent">Forge</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#how">How it works</a>
+            <a href="#security">Security</a>
+            <a href="#faq">FAQ</a>
+            <a href="https://github.com/GunaPavan/MyAgentForge" target="_blank" rel="noopener">GitHub</a>
+            <a href="/app" class="btn btn-primary btn-sm">Open the app →</a>
         </div>
-        <div class="history-toolbar">
-            <span class="history-count" id="historyCount">0 projects</span>
-            <button class="history-clear-all" id="historyClearAllBtn" title="Delete all projects">
-                &#128465; Clear all
-            </button>
-        </div>
-        <div class="history-list" id="historyList">
-            <div class="empty-state small">
-                <p>No projects yet</p>
-            </div>
-        </div>
-        <div class="history-footer">
-            <div class="storage-meter" id="storageMeter">
-                <div class="storage-bar">
-                    <div class="storage-fill" id="storageFill"></div>
+        <button class="nav-menu" id="navMenu" aria-label="Menu">≡</button>
+    </div>
+</nav>
+
+<!-- ========== HERO ========== -->
+<section class="hero">
+    <div class="hero-grid"></div>
+    <div class="container">
+        <div class="hero-inner">
+            <div class="hero-copy">
+                <div class="hero-eyebrow">
+                    <span class="dot"></span>
+                    Open source · MIT licensed · Self-hostable
                 </div>
-                <div class="storage-label" id="storageLabel">Calculating...</div>
+                <h1 class="hero-title">
+                    AI agents that <span class="gradient-text">build software</span> together — privately.
+                </h1>
+                <p class="hero-sub">
+                    A swarm of six specialized AI agents — Orchestrator, Planner, Coder, Reviewer, Tester, Debugger — collaborates in real time to plan, write, review, and actually execute code. Bring your own LLM key. We store nothing.
+                </p>
+                <div class="hero-cta">
+                    <a href="/app" class="btn btn-primary btn-lg">Open the app →</a>
+                    <a href="https://github.com/GunaPavan/MyAgentForge" target="_blank" rel="noopener" class="btn btn-ghost btn-lg">
+                        <span class="btn-icon">★</span> Star on GitHub
+                    </a>
+                </div>
+                <div class="hero-trust">
+                    <span><span class="check">✓</span> Zero data on our servers</span>
+                    <span><span class="check">✓</span> 10+ LLM providers supported</span>
+                    <span><span class="check">✓</span> Real code execution sandbox</span>
+                </div>
             </div>
-            <p>All data lives only in this browser. Nothing is sent to our server.</p>
-        </div>
-    </aside>
-    <div class="drawer-overlay" id="drawerOverlay"></div>
-
-    <!-- Settings Modal -->
-    <div class="modal-overlay" id="settingsModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2>API Key &amp; Provider</h2>
-                <button class="modal-close" id="modalCloseBtn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <!-- Section 1: user's key config -->
-                <div class="key-section">
-                    <h3 class="section-title">Your LLM Configuration</h3>
-                    <p class="section-note">
-                        &#128274; Stored only in your browser's localStorage. Never sent to our database, never logged.
-                    </p>
-                    <div class="key-form">
-                        <label>
-                            <span>API Key</span>
-                            <div class="key-input-row">
-                                <input type="password" id="keyApiKey" placeholder="sk-... or csk-... or gsk_..." autocomplete="off">
-                                <button type="button" id="keyToggleBtn" class="key-toggle" title="Show/hide">&#128065;</button>
-                            </div>
-                        </label>
-                        <label>
-                            <span>Base URL</span>
-                            <input type="text" id="keyBaseUrl" placeholder="https://api.cerebras.ai/v1">
-                        </label>
-                        <label>
-                            <span>Model</span>
-                            <input type="text" id="keyModel" placeholder="e.g. qwen-3-235b-a22b-instruct-2507">
-                        </label>
-                        <div class="key-actions">
-                            <button id="keySaveBtn" class="btn-primary-sm">Save</button>
-                            <button id="keyClearBtn" class="btn-secondary-sm">Clear</button>
-                            <span id="keyStatus" class="key-status"></span>
-                        </div>
-                        <label class="toggle-row">
-                            <input type="checkbox" id="sessionOnlyToggle">
-                            <span class="toggle-label">
-                                <strong>Clear on tab close</strong>
-                                <small>Store key in sessionStorage instead of localStorage. Safer on shared devices &mdash; key is wiped when you close the tab.</small>
-                            </span>
-                        </label>
+            <div class="hero-visual">
+                <div class="terminal">
+                    <div class="terminal-top">
+                        <span class="dot-red"></span>
+                        <span class="dot-yellow"></span>
+                        <span class="dot-green"></span>
+                        <span class="terminal-title">myagentforge — live</span>
+                    </div>
+                    <div class="terminal-body">
+                        <div class="line"><span class="prompt">user →</span> <span>Build a tic-tac-toe game with React</span></div>
+                        <div class="line agent-orchestrator"><span class="prompt">orchestrator →</span> <span>Analyzing requirements...</span></div>
+                        <div class="line agent-planner"><span class="prompt">planner →</span> <span>3 files: index.html, styles.css, script.js</span></div>
+                        <div class="line agent-coder"><span class="prompt">coder →</span> <span class="typing">Writing components, win-detection, animations...</span></div>
+                        <div class="line agent-reviewer"><span class="prompt">reviewer →</span> <span>VERDICT: APPROVED ✓</span></div>
+                        <div class="line agent-tester"><span class="prompt">tester →</span> <span class="pass-badge">✓ PASSED · 423ms</span></div>
+                        <div class="line done"><span class="prompt">system →</span> <span>3 files generated · ready to preview</span></div>
                     </div>
                 </div>
-
-                <!-- Section 2: provider reference -->
-                <div class="providers-section">
-                    <h3 class="section-title">Pick a Provider</h3>
-                    <p class="section-note">Click a provider to auto-fill the Base URL above, then add your key and choose a model.</p>
-                    <div class="providers-grid" id="providersGrid"></div>
-                </div>
             </div>
         </div>
     </div>
+</section>
 
-    <div class="project-indicator" id="projectIndicator" style="display:none;">
-        <span class="indicator-label" id="indicatorLabel">Project:</span>
-        <span class="indicator-title" id="indicatorTitle"></span>
-        <button class="indicator-close" id="indicatorCloseBtn" title="Start fresh">&times;</button>
+<!-- ========== TRUST BAR ========== -->
+<section class="trust-bar">
+    <div class="container">
+        <div class="trust-grid">
+            <div class="trust-item"><div class="trust-num">6</div><div class="trust-label">Specialized agents</div></div>
+            <div class="trust-item"><div class="trust-num">10+</div><div class="trust-label">LLM providers</div></div>
+            <div class="trust-item"><div class="trust-num">0</div><div class="trust-label">Server-side storage</div></div>
+            <div class="trust-item"><div class="trust-num">48</div><div class="trust-label">Automated tests</div></div>
+            <div class="trust-item"><div class="trust-num">100%</div><div class="trust-label">Open source</div></div>
+        </div>
     </div>
+</section>
 
-    <div class="task-bar">
-        <input type="text" id="taskInput" placeholder="Describe a software engineering task... (e.g., Create a Python REST API for a todo app)"
-               autocomplete="off">
-        <button id="runBtn">
-            <span class="btn-icon">&#9654;</span> Run Swarm
-        </button>
-        <button id="stopBtn" style="display: none;" class="stop-btn">
-            <span class="btn-icon">&#9632;</span> Stop
-        </button>
+<!-- ========== FEATURES ========== -->
+<section class="section" id="features">
+    <div class="container">
+        <div class="section-head">
+            <h2>Built for engineers who care about how it works.</h2>
+            <p>Every architectural choice optimized for transparency, security, and developer ergonomics.</p>
+        </div>
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🔐</div>
+                <h3>Privacy by design</h3>
+                <p>Your API key never leaves your browser. The server is stateless — no database, no user accounts, no telemetry. Zero data to steal.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🤖</div>
+                <h3>Six specialized agents</h3>
+                <p>Orchestrator, Planner, Coder, Reviewer, Tester, Debugger. Each runs with its own prompt, communicating via a structured message bus.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>Real-time streaming</h3>
+                <p>Token-by-token agent output over WebSocket, like ChatGPT. Watch the swarm think, plan, and write in real time.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🧪</div>
+                <h3>Real code execution</h3>
+                <p>The Tester doesn't just write tests — it runs them. Sandboxed subprocess with CPU, memory, file-size, and process limits.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🌐</div>
+                <h3>Bring any LLM</h3>
+                <p>Works with any OpenAI-compatible API. Cerebras, Groq, Google Gemini, Mistral, OpenRouter, DeepSeek, OpenAI, or your own Ollama instance.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">💬</div>
+                <h3>Iterative refinement</h3>
+                <p>Generate a project, then ask for changes. The swarm receives existing code as context and modifies it surgically.</p>
+            </div>
+        </div>
     </div>
+</section>
 
-    <div class="templates-bar">
-        <span class="templates-label">Quick start:</span>
-        <button class="template-btn" data-task="Create an HTML + CSS + JS tic-tac-toe game with animations and a scoreboard">&#127922; Tic-tac-toe</button>
-        <button class="template-btn" data-task="Create a single-page landing page in HTML, CSS, and JS for a fictional SaaS product with hero section, features, and pricing">&#127760; Landing page</button>
-        <button class="template-btn" data-task="Create a Python REST API using FastAPI for a todo app with endpoints for create, read, update, delete">&#128640; REST API</button>
-        <button class="template-btn" data-task="Create a Python CLI tool that takes a URL and downloads all images from that webpage">&#128187; CLI tool</button>
-        <button class="template-btn" data-task="Create an HTML + CSS + JS snake game with arrow key controls and score tracking">&#128013; Snake game</button>
+<!-- ========== HOW IT WORKS ========== -->
+<section class="section section-alt" id="how">
+    <div class="container">
+        <div class="section-head">
+            <h2>How a task flows through the swarm.</h2>
+            <p>One submission. Six agents. Real code at the end.</p>
+        </div>
+        <div class="flow">
+            <div class="flow-step">
+                <div class="flow-num">1</div>
+                <h4>You describe the task</h4>
+                <p>"Build a REST API for a todo app with FastAPI."</p>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+                <div class="flow-num">2</div>
+                <h4>Planner designs</h4>
+                <p>Files, functions, signatures. The architectural blueprint.</p>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+                <div class="flow-num">3</div>
+                <h4>Coder writes</h4>
+                <p>Complete files emitted as structured JSON, streamed token-by-token.</p>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+                <div class="flow-num">4</div>
+                <h4>Reviewer audits</h4>
+                <p>Bugs, security issues, best practices. Loops back if fixes needed.</p>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+                <div class="flow-num">5</div>
+                <h4>Tester executes</h4>
+                <p>Sandboxed run. Real exit codes. Real stdout. No guessing.</p>
+            </div>
+        </div>
     </div>
+</section>
 
-    <div class="progress-bar" id="progressBar">
-        <div class="progress-fill" id="progressFill"></div>
-        <span class="progress-label" id="progressLabel"></span>
+<!-- ========== SECURITY ========== -->
+<section class="section" id="security">
+    <div class="container">
+        <div class="security-grid">
+            <div class="security-copy">
+                <h2>Security isn't an afterthought.</h2>
+                <p class="lead">When you're orchestrating LLM-generated code, security has to be baked in from the first commit. Every layer was designed assuming hostile input.</p>
+                <ul class="checklist">
+                    <li><strong>BYOK architecture</strong> — keys held in browser localStorage only, never transmitted to a database</li>
+                    <li><strong>Strict CSP</strong> with no <code>unsafe-inline</code>, Subresource Integrity on all CDN assets</li>
+                    <li><strong>Sandboxed code execution</strong> — POSIX <code>setrlimit</code> on CPU, RAM, file size, PIDs</li>
+                    <li><strong>Path-traversal stripping</strong> in all file ingest and ZIP download paths</li>
+                    <li><strong>Key-redacting log filter</strong> — patterns matching <code>sk-</code>, <code>csk-</code>, <code>gsk_</code>, <code>Bearer</code> auto-masked</li>
+                    <li><strong>Rate limiting</strong> on mutation endpoints via <code>slowapi</code></li>
+                    <li><strong>Zero CVEs</strong> across all pinned dependencies (pip-audit on every CI run)</li>
+                </ul>
+            </div>
+            <div class="security-card">
+                <div class="security-card-head">
+                    <span class="lock">🔒</span>
+                    <span>What never leaves your browser</span>
+                </div>
+                <div class="security-card-body">
+                    <div class="security-item"><span class="x">×</span><span>Your API key</span></div>
+                    <div class="security-item"><span class="x">×</span><span>Project history</span></div>
+                    <div class="security-item"><span class="x">×</span><span>Generated code</span></div>
+                    <div class="security-item"><span class="x">×</span><span>Conversation messages</span></div>
+                    <div class="security-item"><span class="x">×</span><span>Anything that identifies you</span></div>
+                </div>
+                <div class="security-card-foot">No database. No user accounts. No telemetry. The server is a stateless compute proxy.</div>
+            </div>
+        </div>
     </div>
+</section>
 
-    <div class="main-grid">
-        <!-- Left: Agent Cards -->
-        <aside class="agents-panel">
-            <h2>Agents</h2>
-            <div class="agent-card" id="agent-orchestrator">
-                <div class="agent-avatar" style="--agent-color: #6c63ff">&#129302;</div>
-                <div class="agent-info">
-                    <h3>Orchestrator</h3>
-                    <span class="agent-status">Idle</span>
-                </div>
-            </div>
-            <div class="agent-card" id="agent-planner">
-                <div class="agent-avatar" style="--agent-color: #4ecdc4">&#128209;</div>
-                <div class="agent-info">
-                    <h3>Planner</h3>
-                    <span class="agent-status">Idle</span>
-                </div>
-            </div>
-            <div class="agent-card" id="agent-coder">
-                <div class="agent-avatar" style="--agent-color: #ff6b9d">&#128187;</div>
-                <div class="agent-info">
-                    <h3>Coder</h3>
-                    <span class="agent-status">Idle</span>
-                </div>
-            </div>
-            <div class="agent-card" id="agent-reviewer">
-                <div class="agent-avatar" style="--agent-color: #ffd93d">&#128270;</div>
-                <div class="agent-info">
-                    <h3>Reviewer</h3>
-                    <span class="agent-status">Idle</span>
-                </div>
-            </div>
-            <div class="agent-card" id="agent-tester">
-                <div class="agent-avatar" style="--agent-color: #6bff6b">&#9989;</div>
-                <div class="agent-info">
-                    <h3>Tester</h3>
-                    <span class="agent-status">Idle</span>
-                </div>
-            </div>
-            <div class="agent-card" id="agent-debugger">
-                <div class="agent-avatar" style="--agent-color: #ff4444">&#128027;</div>
-                <div class="agent-info">
-                    <h3>Debugger</h3>
-                    <span class="agent-status">Idle</span>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Center: Message Stream -->
-        <main class="messages-panel">
-            <h2>Agent Communication</h2>
-            <div class="messages-stream" id="messagesStream">
-                <div class="empty-state">
-                    <span>&#129302;</span>
-                    <p>Submit a task to watch the agents collaborate</p>
-                </div>
-            </div>
-        </main>
-
-        <!-- Right: Code Output + Preview -->
-        <aside class="code-panel">
-            <div class="panel-tabs">
-                <button class="panel-tab active" data-tab="code">
-                    <span>&#128196;</span> Code
-                </button>
-                <button class="panel-tab" data-tab="preview">
-                    <span>&#128065;</span> Preview
-                </button>
-                <button id="downloadBtn" class="download-btn" style="display:none;">
-                    <span>&#11015;</span> ZIP
-                </button>
-            </div>
-            <div class="code-output tab-content active" id="codeOutput" data-tab="code">
-                <div class="empty-state">
-                    <span>&#128196;</span>
-                    <p>Code will appear here</p>
-                </div>
-            </div>
-            <div class="preview-output tab-content" id="previewOutput" data-tab="preview">
-                <div class="empty-state">
-                    <span>&#128065;</span>
-                    <p>HTML preview will appear here once generated</p>
-                </div>
-            </div>
-        </aside>
+<!-- ========== TECH ========== -->
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-head"><h2>Built on tools you trust.</h2></div>
+        <div class="tech-row">
+            <div class="tech-pill">Python 3.11</div>
+            <div class="tech-pill">FastAPI</div>
+            <div class="tech-pill">WebSockets</div>
+            <div class="tech-pill">Pydantic</div>
+            <div class="tech-pill">Docker</div>
+            <div class="tech-pill">Prism.js</div>
+            <div class="tech-pill">IndexedDB</div>
+            <div class="tech-pill">Hugging Face Spaces</div>
+            <div class="tech-pill">GitHub Actions</div>
+        </div>
     </div>
+</section>
 
-    <script type="module" src="/static/app.js?v=3"></script>
+<!-- ========== FAQ ========== -->
+<section class="section" id="faq">
+    <div class="container container-narrow">
+        <div class="section-head"><h2>Frequently asked questions.</h2></div>
+        <div class="faq">
+            <details class="faq-item">
+                <summary>How do I use this without giving you my API key?</summary>
+                <p>You don't have to. When you open the app, click the gear icon and paste your key — it's stored in your browser's localStorage and only ever leaves your machine inside the encrypted WebSocket frame to our server. The server uses it for that one request and then drops it. There's no database to store it in, by design.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Which LLM providers are supported?</summary>
+                <p>Anything OpenAI-compatible. The settings modal includes one-click configs for Cerebras, Groq, Google Gemini, OpenRouter, Mistral, Together AI, SambaNova, DeepSeek, OpenAI, and local Ollama. If your provider speaks the OpenAI Chat Completions protocol, it works.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Is the code execution actually safe?</summary>
+                <p>The Tester runs LLM-generated code in a subprocess with strict POSIX resource limits: 10s CPU cap, 256MB RAM cap, 10MB file size cap, max 8 processes. The working directory is a disposable tmp dir. Output is truncated to 4KB. On systems with Docker available, it auto-upgrades to a fully isolated container with <code>--network none --read-only</code>.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Can I self-host?</summary>
+                <p>Yes. The whole app is a single FastAPI server packaged in a multi-stage Dockerfile. Clone the repo, <code>docker build && docker run -p 7860:7860</code>, and you're up. Works on Fly.io, Railway, Render, Google Cloud Run, AWS Fargate, or your own VPS.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Will my project history persist?</summary>
+                <p>Yes — in your browser. All projects live in IndexedDB, scoped to this origin. They survive page refreshes, browser restarts, and computer restarts. They're wiped only when you clear browser data, use Incognito, or hit the "Clear all" button.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Is this a portfolio project?</summary>
+                <p>It started that way. It's now a real tool people use — 48 automated tests, full CI, security headers, rate limiting, zero CVEs in dependencies, deployed live on Hugging Face Spaces. Code is MIT licensed; contributions welcome.</p>
+            </details>
+        </div>
+    </div>
+</section>
+
+<!-- ========== CTA ========== -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-card">
+            <h2>Try it now — no signup, no card.</h2>
+            <p>Paste your LLM key, type a task, watch the swarm work. Your key stays on your machine.</p>
+            <div class="hero-cta">
+                <a href="/app" class="btn btn-primary btn-lg">Open the app →</a>
+                <a href="https://github.com/GunaPavan/MyAgentForge" target="_blank" rel="noopener" class="btn btn-ghost btn-lg">View source</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-brand">
+                    <span class="brand-mark">⚙</span>
+                    <span class="brand-name">MyAgent<span class="brand-accent">Forge</span></span>
+                </div>
+                <p class="footer-tag">AI agents that build software, privately.</p>
+            </div>
+            <div>
+                <h5>Product</h5>
+                <a href="/app">Open the app</a>
+                <a href="#features">Features</a>
+                <a href="#how">How it works</a>
+                <a href="#security">Security</a>
+            </div>
+            <div>
+                <h5>Project</h5>
+                <a href="https://github.com/GunaPavan/MyAgentForge" target="_blank" rel="noopener">GitHub</a>
+                <a href="https://github.com/GunaPavan/MyAgentForge/blob/main/README.md" target="_blank" rel="noopener">Docs</a>
+                <a href="https://github.com/GunaPavan/MyAgentForge/blob/main/LICENSE" target="_blank" rel="noopener">License (MIT)</a>
+                <a href="https://github.com/GunaPavan/MyAgentForge/actions" target="_blank" rel="noopener">CI status</a>
+            </div>
+            <div>
+                <h5>Built by</h5>
+                <a href="https://github.com/GunaPavan" target="_blank" rel="noopener">@GunaPavan</a>
+                <a href="https://www.linkedin.com/in/gunapavan/" target="_blank" rel="noopener">LinkedIn</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© <span id="footerYear">2026</span> MyAgentForge · MIT License</span>
+            <span class="version">v2.0</span>
+        </div>
+    </div>
+</footer>
+
+<script src="/static/landing.js?v=1"></script>
+
 </body>
 </html>

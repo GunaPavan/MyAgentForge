@@ -13,17 +13,21 @@ def _read(path):
 
 
 def test_no_inline_onclick_in_html(project_root):
-    html = _read(os.path.join(project_root, "static", "index.html"))
-    # Any inline event handler — onclick, onload, onerror, onsubmit, etc.
-    matches = re.findall(r'\son[a-z]+\s*=\s*["\']', html)
-    assert len(matches) == 0, f"Inline event handlers found: {matches}"
+    """Neither the landing nor the dashboard may have inline event handlers."""
+    for fname in ("index.html", "app.html"):
+        path = os.path.join(project_root, "static", fname)
+        if not os.path.exists(path):
+            continue
+        html = _read(path)
+        matches = re.findall(r'\son[a-z]+\s*=\s*["\']', html)
+        assert len(matches) == 0, f"Inline event handlers in {fname}: {matches}"
 
 
 def test_sri_on_all_cdn_assets(project_root):
-    html = _read(os.path.join(project_root, "static", "index.html"))
-    # Every cdnjs reference should have integrity + crossorigin
+    """The dashboard (app.html) loads Prism from cdnjs — must all have SRI."""
+    html = _read(os.path.join(project_root, "static", "app.html"))
     cdn_refs = re.findall(r'<(?:script|link)[^>]*cdnjs\.cloudflare\.com[^>]*>', html)
-    assert cdn_refs, "Expected at least one CDN reference"
+    assert cdn_refs, "Expected at least one CDN reference in app.html"
     for ref in cdn_refs:
         assert 'integrity="sha' in ref, f"Missing SRI on: {ref[:80]}"
         assert 'crossorigin=' in ref, f"Missing crossorigin on: {ref[:80]}"
@@ -33,6 +37,12 @@ def test_app_js_no_eval_no_function_constructor(project_root):
     js = _read(os.path.join(project_root, "static", "app.js"))
     assert not re.search(r"\beval\s*\(", js), "eval() detected"
     assert not re.search(r"\bnew\s+Function\s*\(", js), "new Function() detected"
+    # Also landing.js
+    landing_js = os.path.join(project_root, "static", "landing.js")
+    if os.path.exists(landing_js):
+        js2 = _read(landing_js)
+        assert not re.search(r"\beval\s*\(", js2), "eval() in landing.js"
+        assert not re.search(r"\bnew\s+Function\s*\(", js2), "new Function() in landing.js"
 
 
 def test_app_js_escape_html_used(project_root):
@@ -44,8 +54,9 @@ def test_app_js_escape_html_used(project_root):
 
 
 def test_script_tag_type_module(project_root):
-    html = _read(os.path.join(project_root, "static", "index.html"))
-    assert 'type="module"' in html, "app.js should be loaded as a module for isolation"
+    """Dashboard's app.js must be loaded as ES module."""
+    html = _read(os.path.join(project_root, "static", "app.html"))
+    assert 'type="module"' in html, "app.js should be loaded as a module"
 
 
 # ---------- Secret scan ----------

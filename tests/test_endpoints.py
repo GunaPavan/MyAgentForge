@@ -3,11 +3,24 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_root_returns_html(client):
+async def test_root_returns_landing_html(client):
+    """The root serves the marketing landing page."""
     r = await client.get("/")
     assert r.status_code == 200
     assert "MyAgentForge" in r.text
     assert "<html" in r.text.lower()
+    # Landing-specific content
+    assert "Open the app" in r.text or "/app" in r.text
+
+
+@pytest.mark.asyncio
+async def test_app_route_returns_dashboard(client):
+    """The /app route serves the dashboard (with the WebSocket UI)."""
+    r = await client.get("/app")
+    assert r.status_code == 200
+    assert "MyAgentForge" in r.text
+    # Dashboard-specific marker: the agents panel or the websocket script
+    assert "agent-orchestrator" in r.text or "agents-panel" in r.text or "AGENTS" in r.text.upper()
 
 
 @pytest.mark.asyncio
