@@ -145,6 +145,15 @@ class Swarm:
                     state = await self._run_agent(AgentRole.TESTER, "user", state)
                     await self._event_queue.put(self._status_event(AgentRole.TESTER, AgentStatus.DONE))
 
+                    # Phase G: emit structured execution_result event if Tester ran code in sandbox
+                    last_msg = state.messages[-1] if state.messages else None
+                    if last_msg and last_msg.metadata.get("execution"):
+                        exec_data = last_msg.metadata["execution"]
+                        await self._event_queue.put(SwarmEvent(
+                            type="execution_result",
+                            data=exec_data,
+                        ))
+
                 await self._event_queue.put(self._task_event(TaskStatus.COMPLETED))
                 msg = f"Task completed! Generated {len(state.code)} file(s): {', '.join(state.code.keys())}"
                 await self._event_queue.put(self._message_event("system", "user", msg))

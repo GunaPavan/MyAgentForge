@@ -1281,6 +1281,105 @@ body {
     font-size: 0.78rem;
 }
 
+/* ===== Execution result card (Phase G) ===== */
+.execution-result {
+    margin-top: 6px;
+    border-radius: 10px;
+    overflow: hidden;
+    animation: msgIn 0.3s ease-out;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+}
+
+.execution-result.exec-pass {
+    border-color: rgba(78, 205, 196, 0.4);
+    background: rgba(78, 205, 196, 0.05);
+}
+
+.execution-result.exec-fail {
+    border-color: rgba(255, 75, 75, 0.4);
+    background: rgba(255, 75, 75, 0.05);
+}
+
+.execution-result.exec-timeout {
+    border-color: rgba(255, 215, 100, 0.4);
+    background: rgba(255, 215, 100, 0.05);
+}
+
+.execution-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+}
+
+.execution-badge {
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.3px;
+}
+
+.exec-pass .execution-badge { color: #4ecdc4; }
+.exec-fail .execution-badge { color: #ff6b9d; }
+.exec-timeout .execution-badge { color: #ffd93d; }
+
+.execution-meta {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-right: auto;
+}
+
+.execution-toggle {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.execution-toggle:hover {
+    border-color: var(--accent);
+    color: var(--accent-light);
+}
+
+.execution-body {
+    border-top: 1px solid var(--border);
+    padding: 10px 14px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.execution-section { margin-bottom: 10px; }
+.execution-section:last-child { margin-bottom: 0; }
+
+.execution-section h5 {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+.execution-section pre {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    background: var(--bg-primary, #0a0a0f);
+    padding: 8px 10px;
+    border-radius: 6px;
+    overflow-x: auto;
+    max-height: 200px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--text-dim);
+}
+
 /* Streaming cursor indicator */
 .message.streaming .message-body::after {
     content: '▊';

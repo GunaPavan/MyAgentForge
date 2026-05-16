@@ -143,6 +143,9 @@ function handleEvent(event) {
             renderCode(event.data.files);
             document.getElementById("downloadBtn").style.display = "flex";
             break;
+        case "execution_result":
+            renderExecutionResult(event.data);
+            break;
         case "error":
             addMessage("system", "user", "Error: " + event.data.message);
             resetUI();
@@ -337,6 +340,40 @@ function renderPreview(files) {
         <iframe class="preview-frame" src="${url}" sandbox="allow-scripts allow-forms"></iframe>
     `;
     document.getElementById("openNewTabBtn").addEventListener("click", () => window.open(url, "_blank"));
+}
+
+function renderExecutionResult(data) {
+    const stream = ensureStream();
+    const passed = data.passed === true;
+    const timedOut = data.timed_out === true;
+    const cls = passed ? "exec-pass" : (timedOut ? "exec-timeout" : "exec-fail");
+    const icon = passed ? "&#9989;" : (timedOut ? "&#9201;" : "&#10060;");
+    const label = passed ? "PASSED" : (timedOut ? "TIMED OUT" : "FAILED");
+    const duration = data.duration_ms != null ? `${data.duration_ms} ms` : "";
+    const backend = data.backend || "subprocess";
+
+    const card = document.createElement("div");
+    card.className = "execution-result " + cls;
+    card.innerHTML = `
+        <div class="execution-header">
+            <span class="execution-badge">${icon} ${label}</span>
+            <span class="execution-meta">${escapeHtml(duration)} &middot; ${escapeHtml(backend)}</span>
+            <button class="execution-toggle">Show details</button>
+        </div>
+        <div class="execution-body" style="display:none">
+            ${data.stdout ? `<div class="execution-section"><h5>stdout</h5><pre>${escapeHtml(data.stdout)}</pre></div>` : ""}
+            ${data.stderr ? `<div class="execution-section"><h5>stderr</h5><pre>${escapeHtml(data.stderr)}</pre></div>` : ""}
+            ${data.test_file ? `<div class="execution-section"><h5>test_main.py</h5><pre>${escapeHtml(data.test_file)}</pre></div>` : ""}
+        </div>
+    `;
+    card.querySelector(".execution-toggle").addEventListener("click", (e) => {
+        const body = card.querySelector(".execution-body");
+        const isOpen = body.style.display !== "none";
+        body.style.display = isOpen ? "none" : "block";
+        e.target.textContent = isOpen ? "Show details" : "Hide details";
+    });
+    stream.appendChild(card);
+    stream.scrollTop = stream.scrollHeight;
 }
 
 function copyCode(btn) {
