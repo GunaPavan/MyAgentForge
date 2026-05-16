@@ -259,11 +259,13 @@ async function updateProgress(status) {
             }
         }
 
-        // Clear currentProject so the NEXT task creates a new project (not a follow-up).
-        // The finished project stays in history and can be reopened from there.
-        currentProject = null;
-        hideProjectIndicator();
-        document.getElementById("taskInput").placeholder = "Describe a software engineering task...";
+        // Keep currentProject set so the next submission becomes a follow-up
+        // (Phase F: agents iterate on the existing code). To start fresh, the user
+        // clicks "+ New" or the X on the project indicator.
+        if (currentProject) {
+            document.getElementById("taskInput").placeholder = "Ask a follow-up... (e.g., 'Add dark mode')";
+            showProjectIndicator(currentProject.title, /*followup=*/ true);
+        }
 
         resetUI();
     }
@@ -391,16 +393,24 @@ async function submitTask() {
         return;
     }
 
+    // Determine if this is a follow-up (we're inside an existing project with files)
+    const isFollowup = !!(currentProject && currentProject.files && Object.keys(currentProject.files).length > 0);
+    const priorTask = isFollowup ? (currentProject.initial_task || currentProject.title || "") : "";
+    const priorCode = isFollowup ? currentProject.files : {};
+
     isRunning = true;
     accumulatedMessages = [];
     streamingMessages = {};
     currentFiles = {};
     input.dataset.lastTask = task;
 
-    // Create or append to project
+    // Create or continue project
     if (!currentProject) {
         currentProject = await DB.createProject(task);
         showProjectIndicator(currentProject.title);
+    } else if (isFollowup) {
+        // Append the follow-up task to project messages history (the actual code update happens after the run)
+        showProjectIndicator(currentProject.title, /*followup=*/ true);
     }
 
     document.getElementById("runBtn").style.display = "none";
@@ -418,11 +428,16 @@ async function submitTask() {
     fill.style.background = "linear-gradient(90deg, var(--accent), #4ecdc4)";
     document.getElementById("progressLabel").style.color = "";
 
-    ws.send(JSON.stringify({
+    const payload = {
         action: "run",
         task,
         llm_config: serverMode === "mock" ? {} : cfg,
-    }));
+    };
+    if (isFollowup) {
+        payload.prior_task = priorTask;
+        payload.prior_code = priorCode;
+    }
+    ws.send(JSON.stringify(payload));
 }
 
 function stopTask() {
@@ -697,9 +712,12 @@ async function loadProject(projectId) {
     closeHistory();
 }
 
-function showProjectIndicator(title) {
+function showProjectIndicator(title, followup = false) {
     const ind = document.getElementById("projectIndicator");
+    const labelEl = document.getElementById("indicatorLabel");
+    if (labelEl) labelEl.textContent = followup ? "Follow-up to:" : "Project:";
     document.getElementById("indicatorTitle").textContent = title;
+    ind.classList.toggle("followup", followup);
     ind.style.display = "flex";
 }
 

@@ -23,6 +23,21 @@ class CoderAgent(BaseAgent):
     async def execute(self, state, on_chunk=None):
         state.status = TaskStatus.CODING
         plan = state.plan
+
+        # Follow-up context (Phase F): include prior files so the Coder modifies them
+        followup_context = ""
+        if state.is_followup and state.prior_code and state.review_iteration == 0:
+            prior_files = "\n\n".join(
+                f"--- {fname} ---\n{code}" for fname, code in state.prior_code.items()
+            )
+            followup_context = (
+                f"\n\nEXISTING FILES (modify these as the plan describes):\n{prior_files}\n\n"
+                "Output the COMPLETE updated set of files. Include unchanged files verbatim, "
+                "modified files with the changes applied, and any new files. "
+                "Do NOT omit files — the output replaces the entire project."
+            )
+
+        # Code-review fix loop context
         review_feedback = ""
         if state.review_iteration > 0:
             review_feedback = f"\n\nPrevious Review Feedback (iteration {state.review_iteration}):\n{state.review}\n"
@@ -31,7 +46,12 @@ class CoderAgent(BaseAgent):
             )
             review_feedback += f"\nPrevious Code:\n{previous_code}\nFix the issues identified in the review."
 
-        prompt = f"Implementation Plan:\n{plan}{review_feedback}\n\nWrite the code now. Output ONLY valid JSON mapping filenames to contents."
+        prompt = (
+            f"Implementation Plan:\n{plan}"
+            f"{followup_context}"
+            f"{review_feedback}"
+            "\n\nWrite the code now. Output ONLY valid JSON mapping filenames to contents."
+        )
 
         result = await self.think(prompt, on_chunk=on_chunk)
         code = self._parse_code(result)

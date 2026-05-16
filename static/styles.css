@@ -301,6 +301,19 @@ body {
     font-size: 0.8rem;
 }
 
+.project-indicator.followup {
+    background: rgba(78, 205, 196, 0.08);
+    border-bottom-color: rgba(78, 205, 196, 0.2);
+}
+
+.project-indicator.followup .indicator-label {
+    color: #4ecdc4;
+}
+
+.project-indicator.followup .indicator-title {
+    color: #4ecdc4;
+}
+
 .indicator-label {
     color: var(--text-muted);
     font-weight: 600;

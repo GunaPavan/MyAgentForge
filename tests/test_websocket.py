@@ -114,6 +114,51 @@ async def test_ws_mock_full_run_streams_events(running_server):
 
 
 @pytest.mark.asyncio
+async def test_ws_followup_run_with_prior_code(running_server):
+    """Phase F: WS accepts prior_task + prior_code for follow-up runs."""
+    port = running_server
+    async with websockets.connect(f"ws://127.0.0.1:{port}/ws") as ws:
+        await ws.send(json.dumps({
+            "action": "run",
+            "task": "Add a dark mode toggle",
+            "prior_task": "Build a counter app",
+            "prior_code": {
+                "index.html": "<!DOCTYPE html><html><body><h1>Counter</h1></body></html>",
+                "script.js": "let count = 0;",
+            },
+            "llm_config": {},
+        }))
+        completed = False
+        for _ in range(200):
+            try:
+                msg = json.loads(await asyncio.wait_for(ws.recv(), 10))
+            except asyncio.TimeoutError:
+                break
+            if msg.get("type") == "task_status" and msg.get("data", {}).get("status") == "completed":
+                completed = True
+                break
+        assert completed, "Follow-up task did not complete"
+
+
+@pytest.mark.asyncio
+async def test_ws_rejects_too_large_prior_code(running_server):
+    """Prior code over 200KB total should be rejected."""
+    port = running_server
+    async with websockets.connect(f"ws://127.0.0.1:{port}/ws", max_size=10*1024*1024) as ws:
+        big_code = {f"f{i}.py": "x" * 10000 for i in range(30)}  # 300KB
+        await ws.send(json.dumps({
+            "action": "run",
+            "task": "Modify it",
+            "prior_task": "old",
+            "prior_code": big_code,
+            "llm_config": {},
+        }))
+        reply = json.loads(await asyncio.wait_for(ws.recv(), 5))
+        assert reply.get("type") == "error"
+        assert "too large" in reply["data"]["message"].lower()
+
+
+@pytest.mark.asyncio
 async def test_ws_cancel_action(running_server):
     port = running_server
     async with websockets.connect(f"ws://127.0.0.1:{port}/ws") as ws:

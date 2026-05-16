@@ -145,7 +145,7 @@ async def websocket_endpoint(ws: WebSocket):
         except Exception:
             pass
 
-    async def run_swarm(task: str, llm_config: dict):
+    async def run_swarm(task: str, llm_config: dict, prior_task: str = "", prior_code: dict | None = None):
         nonlocal current_swarm
         # Set per-request LLM config in contextvar (never touches DB/logs)
         token = set_request_config(
@@ -155,7 +155,7 @@ async def websocket_endpoint(ws: WebSocket):
         )
         current_swarm = Swarm()
         try:
-            async for event in current_swarm.run(task):
+            async for event in current_swarm.run(task, prior_task=prior_task, prior_code=prior_code):
                 await ws.send_text(event.model_dump_json())
         except Exception as e:
             msg = KeyRedactingFilter.redact(str(e))
@@ -202,13 +202,23 @@ async def websocket_endpoint(ws: WebSocket):
                         )
                         continue
 
+                # Optional follow-up context
+                prior_task = (payload.get("prior_task") or "").strip()
+                prior_code = payload.get("prior_code") or {}
+                if not isinstance(prior_code, dict):
+                    prior_code = {}
+                # Bound the prior context size to keep prompts reasonable
+                if sum(len(str(v)) for v in prior_code.values()) > 200_000:
+                    await send_error("Prior code too large for follow-up; please start a new project")
+                    continue
+
                 # Cancel any in-flight swarm
                 if current_swarm:
                     current_swarm.cancel()
                 if runner_task and not runner_task.done():
                     runner_task.cancel()
 
-                runner_task = asyncio.create_task(run_swarm(task, llm_config))
+                runner_task = asyncio.create_task(run_swarm(task, llm_config, prior_task, prior_code))
 
     except WebSocketDisconnect:
         if current_swarm:

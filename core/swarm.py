@@ -81,8 +81,18 @@ class Swarm:
         ))
         return state
 
-    async def run(self, user_task: str) -> AsyncGenerator[SwarmEvent, None]:
-        state = TaskState(user_task=user_task)
+    async def run(
+        self,
+        user_task: str,
+        prior_task: str = "",
+        prior_code: Optional[dict[str, str]] = None,
+    ) -> AsyncGenerator[SwarmEvent, None]:
+        state = TaskState(
+            user_task=user_task,
+            prior_task=prior_task or "",
+            prior_code=prior_code or {},
+            is_followup=bool(prior_task and prior_code),
+        )
 
         async def runner():
             try:

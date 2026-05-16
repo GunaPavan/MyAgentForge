@@ -58,6 +58,11 @@ class TaskState(BaseModel):
     debug_analysis: str = ""
     messages: list[AgentMessage] = Field(default_factory=list)
 
+    # Follow-up context (Phase F): carries prior project state so agents can iterate
+    is_followup: bool = False
+    prior_task: str = ""
+    prior_code: dict[str, str] = Field(default_factory=dict)  # prior filename -> code
+
     def add_message(self, sender: AgentRole, receiver: AgentRole | str, content: str, **kwargs) -> AgentMessage:
         msg = AgentMessage(sender=sender, receiver=receiver, content=content, metadata=kwargs)
         self.messages.append(msg)
